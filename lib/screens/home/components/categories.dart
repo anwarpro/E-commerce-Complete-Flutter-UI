@@ -1,31 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shop_app/api/api.dart';
+import 'package:shop_app/bloc/products_bloc.dart';
 
 import '../../../size_config.dart';
 
 class Categories extends StatelessWidget {
+  Categories({required this.shopApiClient});
+
+  final ShopApiClient shopApiClient;
+
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> categories = [
-      {"icon": "assets/icons/Flash Icon.svg", "text": "Flash Deal"},
-      {"icon": "assets/icons/Bill Icon.svg", "text": "Bill"},
-      {"icon": "assets/icons/Game Icon.svg", "text": "Game"},
-      {"icon": "assets/icons/Gift Icon.svg", "text": "Daily Gift"},
-      {"icon": "assets/icons/Discover.svg", "text": "More"},
-    ];
-    return Padding(
-      padding: EdgeInsets.all(getProportionateScreenWidth(20)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          categories.length,
-          (index) => CategoryCard(
-            icon: categories[index]["icon"],
-            text: categories[index]["text"],
-            press: () {},
-          ),
-        ),
+    return BlocProvider(
+      create: (_) => ShopApiBloc(
+        productsApiClient: shopApiClient,
+      )..add(CollectionFetchStarted()),
+      child: Padding(
+        padding: EdgeInsets.all(getProportionateScreenWidth(20)),
+        child:
+            BlocBuilder<ShopApiBloc, ShopApiState>(builder: (context, state) {
+          if (state is ShopApiLoadInProgress) {
+            return CircularProgressIndicator();
+          }
+          if (state is CollectionLoadSuccess) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(
+                state.collections.length,
+                (index) => CategoryCard(
+                  icon: "assets/icons/Flash Icon.svg",
+                  text: state.collections[index].name,
+                  press: () {},
+                ),
+              ),
+            );
+          }
+          return Text('Oops something went wrong!');
+        }),
       ),
     );
   }

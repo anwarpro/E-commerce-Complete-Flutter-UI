@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_app/bloc/products_bloc.dart';
 import 'package:shop_app/components/product_card.dart';
 import 'package:shop_app/models/Product.dart';
 
@@ -18,21 +20,28 @@ class PopularProducts extends StatelessWidget {
         SizedBox(height: getProportionateScreenWidth(20)),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              ...List.generate(
-                demoProducts.length,
-                (index) {
-                  if (demoProducts[index].isPopular)
-                    return ProductCard(product: demoProducts[index]);
-
-                  return SizedBox
-                      .shrink(); // here by default width and height is 0
-                },
-              ),
-              SizedBox(width: getProportionateScreenWidth(20)),
-            ],
-          ),
+          child: BlocBuilder<ShopApiBloc, ShopApiState>(
+              builder: (context, state) {
+            if (state is ShopApiLoadInProgress) {
+              return CircularProgressIndicator();
+            }
+            if (state is ProductsLoadSuccess) {
+              return Row(
+                children: [
+                  ...List.generate(
+                    state.products.length,
+                    (index) {
+                      return ProductCard(product: state.products[index]);
+                      return SizedBox
+                          .shrink(); // here by default width and height is 0
+                    },
+                  ),
+                  SizedBox(width: getProportionateScreenWidth(20)),
+                ],
+              );
+            }
+            return Text('Oops something went wrong!');
+          }),
         )
       ],
     );

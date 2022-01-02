@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/constants.dart';
-import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/home/home_screen.dart';
 import 'package:shop_app/size_config.dart';
 
+import '../../../components/default_button.dart';
 // This is the best practice
 import '../components/splash_content.dart';
-import '../../../components/default_button.dart';
 
 class Body extends StatefulWidget {
   @override
@@ -29,6 +30,31 @@ class _BodyState extends State<Body> {
       "image": "assets/images/splash_3.png"
     },
   ];
+
+  bool _onBoarding = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOnBoarding();
+  }
+
+  //Loading counter value on start
+  void _loadOnBoarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _onBoarding = (prefs.getBool('onBoarding') ?? true);
+    });
+  }
+
+  //Incrementing counter after click
+  void _offOnBoarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setBool('onBoarding', false);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -70,7 +96,7 @@ class _BodyState extends State<Body> {
                     DefaultButton(
                       text: "Continue",
                       press: () {
-                        Navigator.pushNamed(context, SignInScreen.routeName);
+                        Navigator.pushNamed(context, HomeScreen.routeName);
                       },
                     ),
                     Spacer(),

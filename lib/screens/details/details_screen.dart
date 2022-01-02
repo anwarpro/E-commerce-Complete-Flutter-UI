@@ -23,7 +23,7 @@ class DetailsScreen extends StatelessWidget {
 }
 
 class ProductDetailsArguments {
-  final Product product;
+  final Product product = demoProducts.first;
 
-  ProductDetailsArguments({required this.product});
+  ProductDetailsArguments();
 }
